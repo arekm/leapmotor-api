@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Fixed vehicle status failing on the **B05** ([#18](https://github.com/markoceri/leapmotor-api/issues/18)). Like the B10 and B11, it shares the C10 status endpoint: `/status/get/b05` is answered with `No message available` (HTTP 404) while login, vehicle list, abilities and commands all succeed. `CAR_TYPE_PATH_MAP` and `CarType.status_path` now map B05 → C10, and a test keeps the two mappings in sync. Thanks to @kerniger (#15) and @ProtossBlaster (#16).
 - Fixed the dynamic car image compositing the open rear tailgate (`carpic_tailgate_open.png`) on top of the vehicle. The layer is now rendered in the background (below the body) so the open hatch no longer overlaps the car and only the protruding portion is visible.
 
+### Added
+- Added REEV range estimation fields ([#11](https://github.com/markoceri/leapmotor-api/issues/11), [#12](https://github.com/markoceri/leapmotor-api/pull/12)): `BatteryStatus.expected_fuel_mileage` / `expected_combined_mileage` (signals `3259` / `3261`) and `DrivingStatus.max_fuel_range` / `max_combined_range` (signals `3256` / `3258`). Thanks to @miguelprates.
+
 ## [0.3.2] - 2026-06-22
 
 ### Fixed
