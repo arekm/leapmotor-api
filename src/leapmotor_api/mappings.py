@@ -292,9 +292,7 @@ REMOTE_ACTION_SPECS: dict[str, RemoteActionSpec] = {
     REMOTE_CTL_FOTA_SCHEDULE: RemoteActionCtlFotaSchedule(required_right=VehicleRight.FOTA_INSTALL_APPOINTMENT),
     REMOTE_CTL_REAR_SEATS: RemoteActionCtlRearSeats(required_right=VehicleRight.REAR_SEATS),
     REMOTE_CTL_PREPARE_CAR: RemoteActionCtlPrepareCar(required_right=VehicleRight.PREPARE_CAR),
-    REMOTE_CTL_PREPARE_CAR_SCHEDULE: RemoteActionCtlPrepareCarSchedule(
-        required_right=VehicleRight.PREPARE_CAR_ALARM
-    ),
+    REMOTE_CTL_PREPARE_CAR_SCHEDULE: RemoteActionCtlPrepareCarSchedule(required_right=VehicleRight.PREPARE_CAR_ALARM),
     REMOTE_CTL_SEAT_ADJUST: RemoteActionCtlSeatAdjust(required_right=VehicleRight.SEAT_ADJUST),
     REMOTE_CTL_PILOTED_PARKING: RemoteActionCtlPilotedParking(required_right=VehicleRight.PILOTED_PARKING),
 }

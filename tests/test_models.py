@@ -1218,7 +1218,7 @@ class TestVehicleStatusFromDict:
                 "100013": "462.9",
                 "100015": "525.6",
                 "100016": "0.0",
-                "2188": 0
+                "2188": 0,
             },
             "config": {
                 "3": {
@@ -1229,10 +1229,10 @@ class TestVehicleStatusFromDict:
                     "recharge": 0,
                     "beginTime": "22:00",
                     "updateTime": "2026-06-25 12:36:54",
-                    "circulation": 2
+                    "circulation": 2,
                 }
             },
-            "privacyData": 1
+            "privacyData": 1,
         }
         vs = VehicleStatus.from_dict(data)
         assert vs.battery.soc == 71
