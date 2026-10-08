@@ -43,7 +43,10 @@ across the various Leapmotor vehicle models.
 
 ¹ The B10 reports `carType=B10` in the vehicle list, but the backend uses
 the C10 endpoint. B11 and B05 also use the C10 endpoint. The library performs
-the mapping automatically via `CarType.status_path`.
+the mapping automatically via `CarType.status_path`. If a model that is not
+mapped yet answers HTTP 404 on its own segment, the client retries once on the
+C10 endpoint, uses it for that model from then on and logs a warning asking for
+a report so the model can be added to `CAR_TYPE_PATH_MAP`.
 
 ### Known Vehicle Models (CarType)
 

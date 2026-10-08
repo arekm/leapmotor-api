@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Vehicle status falls back to the shared C10 endpoint when a model's own segment answers HTTP 404 (as the B05 did before it was mapped). The fallback is remembered per model for the client's lifetime, logs a one-time warning asking for a report, and is recorded in `last_api_results` as `vehicle status c10 fallback` next to the original 404. If C10 also fails, the error names both segments tried. Other errors are unchanged.
+
 ### Changed
 - `mappings.CAR_TYPE_PATH_MAP` is now the single source for vehicle status path mapping: `CarType.status_path` reads it, and the client resolves the path through `CarType.status_path`. The duplicate `models._CAR_TYPE_STATUS_PATH` was removed. `docs/vehicles.md` now lists `/status/get/c10` for the B05.
 
