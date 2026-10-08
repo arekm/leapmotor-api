@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- `mappings.CAR_TYPE_PATH_MAP` is now the single source for vehicle status path mapping: `CarType.status_path` reads it, and the client resolves the path through `CarType.status_path`. The duplicate `models._CAR_TYPE_STATUS_PATH` was removed. `docs/vehicles.md` now lists `/status/get/c10` for the B05.
+
 ## [0.3.3] - 2026-10-08
 
 ### Fixed
