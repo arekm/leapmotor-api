@@ -20,7 +20,7 @@ from leapmotor_api.exceptions import (
     LeapmotorAuthError,
     LeapmotorMissingAppCertError,
 )
-from leapmotor_api.models import MessageList, Vehicle
+from leapmotor_api.models import CarType, MessageList, Vehicle
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -104,12 +104,30 @@ class TestVehicleStatusCarTypePath:
         assert _vehicle_status_car_type_path("B10") == "c10"
         assert _vehicle_status_car_type_path("b10") == "c10"
 
+    def test_b11_maps_to_c10(self) -> None:
+        assert _vehicle_status_car_type_path("B11") == "c10"
+        assert _vehicle_status_car_type_path("b11") == "c10"
+
+    def test_b05_maps_to_c10(self) -> None:
+        # /status/get/b05 is answered with "No message available" (HTTP 404);
+        # the C10 segment returns the full signal set for a B05.
+        assert _vehicle_status_car_type_path("B05") == "c10"
+        assert _vehicle_status_car_type_path("b05") == "c10"
+
     def test_c10_unchanged(self) -> None:
         assert _vehicle_status_car_type_path("C10") == "c10"
 
     def test_other_types_lowered(self) -> None:
         assert _vehicle_status_car_type_path("T03") == "t03"
         assert _vehicle_status_car_type_path("C11") == "c11"
+
+    def test_agrees_with_car_type_status_path(self) -> None:
+        # The mapping is kept in two places — CAR_TYPE_PATH_MAP (used internally)
+        # and CarType.status_path (the documented public accessor). They must not
+        # drift, or a consumer following the docstring gets a different answer
+        # from the one the client uses.
+        for member in CarType:
+            assert _vehicle_status_car_type_path(member.value) == member.status_path
 
 
 # ---------------------------------------------------------------------------

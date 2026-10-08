@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Fixed
+- Fixed vehicle status failing on the **B05**, which shares the C10 status endpoint like the B10 and B11. Requesting `/status/get/b05` is answered with `No message available` (HTTP 404) on every attempt, while login, the vehicle list, abilities and remote commands all succeed — so the vehicle appears fully configured but never reports any data. `CAR_TYPE_PATH_MAP` and `CarType.status_path` now both map B05 → C10
 - Fixed the dynamic car image compositing the open rear tailgate (`carpic_tailgate_open.png`) on top of the vehicle. The layer is now rendered in the background (below the body) so the open hatch no longer overlaps the car and only the protruding portion is visible.
 
 ## [0.3.2] - 2026-06-22

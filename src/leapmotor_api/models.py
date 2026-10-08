@@ -132,14 +132,16 @@ class CarType(StrEnum):
     def status_path(self) -> str:
         """Endpoint path segment for the vehicle status API.
 
-        B10 and B11 share the C10 status endpoint.
+        B10, B11 and B05 share the C10 status endpoint.
         """
         return _CAR_TYPE_STATUS_PATH.get(self.value, self.value)
 
 
+# Keep in sync with ``mappings.CAR_TYPE_PATH_MAP``.
 _CAR_TYPE_STATUS_PATH: dict[str, str] = {
     "b10": "c10",
     "b11": "c10",
+    "b05": "c10",
 }
 
 
