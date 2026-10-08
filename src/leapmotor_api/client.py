@@ -104,8 +104,9 @@ from .exceptions import (
     LeapmotorAuthError,
     LeapmotorMissingAppCertError,
 )
-from .mappings import CAR_TYPE_PATH_MAP, REMOTE_ACTION_SPECS
+from .mappings import REMOTE_ACTION_SPECS
 from .models import (
+    CarType,
     ChargeDailyDetailPage,
     ConsumptionLastWeekBreakdown,
     ConsumptionWeeklyRank,
@@ -129,8 +130,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def _vehicle_status_car_type_path(car_type: str) -> str:
     """Return the backend status path segment for a vehicle model."""
-    normalized = car_type.strip().lower()
-    return CAR_TYPE_PATH_MAP.get(normalized, normalized)
+    return CarType(car_type.strip()).status_path
 
 
 class LeapmotorApiClient:

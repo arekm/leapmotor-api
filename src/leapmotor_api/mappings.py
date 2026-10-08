@@ -305,8 +305,7 @@ REMOTE_ACTION_SPECS: dict[str, RemoteActionSpec] = {
 # but the status endpoint is shared with C10.  B11 and B05 also use the C10 path.
 # Requesting the model's own segment (e.g. ``/status/get/b05``) is answered with
 # ``No message available`` / HTTP 404, while every other call in the flow succeeds.
-# Keep in sync with ``models._CAR_TYPE_STATUS_PATH``.
-# Use ``CarType(car_type_str).status_path`` for runtime resolution.
+# Single source of truth: resolve at runtime via ``CarType(car_type_str).status_path``.
 CAR_TYPE_PATH_MAP: dict[str, str] = {
     CarType.B10: CarType.C10,
     CarType.B11: CarType.C10,

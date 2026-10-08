@@ -21,6 +21,7 @@ from leapmotor_api.models import (
     ApiRequestHeaders,
     BatteryStatus,
     BoolStatus,
+    CarType,
     ChargeState,
     ClimateCircle,
     ClimateMode,
@@ -79,6 +80,24 @@ from leapmotor_api.models import (
     VehicleStatus,
     WeeklyConsumption,
 )
+
+# ---------------------------------------------------------------------------
+# CarType
+# ---------------------------------------------------------------------------
+
+
+class TestCarTypeStatusPath:
+    def test_shared_c10_endpoint(self) -> None:
+        for car_type in (CarType.B05, CarType.B10, CarType.B11):
+            assert car_type.status_path == "c10"
+
+    def test_own_endpoint(self) -> None:
+        assert CarType.C10.status_path == "c10"
+        assert CarType.T03.status_path == "t03"
+
+    def test_unknown_type(self) -> None:
+        assert CarType("X99").status_path == "x99"
+
 
 # ---------------------------------------------------------------------------
 # ApiRequestHeaders

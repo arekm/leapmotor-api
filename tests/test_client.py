@@ -121,13 +121,12 @@ class TestVehicleStatusCarTypePath:
         assert _vehicle_status_car_type_path("T03") == "t03"
         assert _vehicle_status_car_type_path("C11") == "c11"
 
-    def test_agrees_with_car_type_status_path(self) -> None:
-        # The mapping is kept in two places — CAR_TYPE_PATH_MAP (used internally)
-        # and CarType.status_path (the documented public accessor). They must not
-        # drift, or a consumer following the docstring gets a different answer
-        # from the one the client uses.
+    def test_unknown_type_lowered(self) -> None:
+        assert _vehicle_status_car_type_path(" X99 ") == "x99"
+
+    def test_matches_car_type_status_path(self) -> None:
         for member in CarType:
-            assert _vehicle_status_car_type_path(member.value) == member.status_path
+            assert _vehicle_status_car_type_path(member.value.upper()) == member.status_path
 
 
 # ---------------------------------------------------------------------------

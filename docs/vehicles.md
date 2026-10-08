@@ -42,7 +42,7 @@ across the various Leapmotor vehicle models.
 | Privacy flags | ✓ | ✓ | ✓ |
 
 ¹ The B10 reports `carType=B10` in the vehicle list, but the backend uses
-the C10 endpoint. B11 also uses the C10 endpoint. The library performs
+the C10 endpoint. B11 and B05 also use the C10 endpoint. The library performs
 the mapping automatically via `CarType.status_path`.
 
 ### Known Vehicle Models (CarType)
@@ -57,7 +57,7 @@ the mapping automatically via `CarType.status_path`.
 | `C16` | Leapmotor C16 | `/status/get/c16` | 3-row seat layout variants |
 | `B10` | Leapmotor B10 | `/status/get/c10` ¹ | Shares C10 endpoint |
 | `B11` | Leapmotor B11 | `/status/get/c10` ¹ | C10 variant, shares endpoint |
-| `B05` | Leapmotor B05 | `/status/get/b05` | |
+| `B05` | Leapmotor B05 | `/status/get/c10` ¹ | Shares C10 endpoint |
 | `B03X` | Leapmotor B03X | `/status/get/b03x` | |
 
 ### Model-Specific Feature Availability
