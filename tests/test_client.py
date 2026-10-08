@@ -469,6 +469,26 @@ class TestVehicleStatusC10Fallback:
         assert self._paths(post) == ["x99", "c10"]
         client.close()
 
+    def test_remembers_c10_after_successful_fallback(self) -> None:
+        client = self._client()
+        with patch.object(client, "_post", side_effect=[_STATUS_404, _STATUS_OK, _STATUS_OK]) as post:
+            client.get_vehicle_raw_status(self._vehicle("X99"))
+            client.get_vehicle_raw_status(self._vehicle("X99"))
+        assert self._paths(post) == ["x99", "c10", "c10"]
+        client.close()
+
+    def test_does_not_remember_failed_fallback(self) -> None:
+        client = self._client()
+        with (
+            patch.object(client, "_post", return_value=_STATUS_404),
+            pytest.raises(LeapmotorApiError, match="No message available"),
+        ):
+            client.get_vehicle_raw_status(self._vehicle("X99"))
+        with patch.object(client, "_post", side_effect=[_STATUS_404, _STATUS_OK]) as post:
+            client.get_vehicle_raw_status(self._vehicle("X99"))
+        assert self._paths(post) == ["x99", "c10"]
+        client.close()
+
     def test_no_retry_when_already_c10(self) -> None:
         client = self._client()
         with (

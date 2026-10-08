@@ -185,6 +185,9 @@ class LeapmotorApiClient:
         self.account_p12_password_source: str | None = None
         self.remote_cert_synced = False
         self.last_api_results: dict[str, dict[str, Any]] = {}
+        # Status path segments that answered 404 and worked on C10, so later
+        # requests go straight to C10 (e.g. {"x99": "c10"}).
+        self._status_path_overrides: dict[str, str] = {}
 
     # ------------------------------------------------------------------
     # Lifecycle
@@ -358,12 +361,15 @@ class LeapmotorApiClient:
 
     def _get_vehicle_raw_status(self, vehicle: Vehicle) -> dict[str, Any]:
         car_type_path = _vehicle_status_car_type_path(vehicle.car_type)
+        car_type_path = self._status_path_overrides.get(car_type_path, car_type_path)
         response = self._post_vehicle_status(vehicle, car_type_path)
         # Several models share the C10 status endpoint and answer 404 on their own
         # segment (see ``mappings.CAR_TYPE_PATH_MAP``). Retry once on C10 so a model
-        # that is not mapped yet still reports data.
+        # that is not mapped yet still reports data, and remember it if it works.
         if response["status_code"] == 404 and car_type_path != CarType.C10:
             response = self._post_vehicle_status(vehicle, CarType.C10)
+            if response["status_code"] == 200:
+                self._status_path_overrides[car_type_path] = CarType.C10
         return self._parse_api_body(response["status_code"], response["body"], "vehicle status")
 
     def _post_vehicle_status(self, vehicle: Vehicle, car_type_path: str) -> dict[str, Any]:
