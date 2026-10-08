@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import tempfile
 from pathlib import Path
@@ -475,6 +476,19 @@ class TestVehicleStatusC10Fallback:
             client.get_vehicle_raw_status(self._vehicle("X99"))
             client.get_vehicle_raw_status(self._vehicle("X99"))
         assert self._paths(post) == ["x99", "c10", "c10"]
+        client.close()
+
+    def test_warns_once_per_model(self, caplog: pytest.LogCaptureFixture) -> None:
+        client = self._client()
+        with (
+            caplog.at_level(logging.WARNING, logger="leapmotor_api.client"),
+            patch.object(client, "_post", side_effect=[_STATUS_404, _STATUS_OK, _STATUS_OK]),
+        ):
+            client.get_vehicle_raw_status(self._vehicle("X99"))
+            client.get_vehicle_raw_status(self._vehicle("X99"))
+        warnings = [r for r in caplog.records if "answered 404" in r.getMessage()]
+        assert len(warnings) == 1
+        assert "X99" in warnings[0].getMessage()
         client.close()
 
     def test_does_not_remember_failed_fallback(self) -> None:

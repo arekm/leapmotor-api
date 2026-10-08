@@ -370,6 +370,12 @@ class LeapmotorApiClient:
             response = self._post_vehicle_status(vehicle, CarType.C10)
             if response["status_code"] == 200:
                 self._status_path_overrides[car_type_path] = CarType.C10
+                _LOGGER.warning(
+                    "Status endpoint for carType %s answered 404; using the shared C10 endpoint. "
+                    "Please report it at https://github.com/markoceri/leapmotor-api/issues "
+                    "so the model can be mapped.",
+                    vehicle.car_type,
+                )
         return self._parse_api_body(response["status_code"], response["body"], "vehicle status")
 
     def _post_vehicle_status(self, vehicle: Vehicle, car_type_path: str) -> dict[str, Any]:
