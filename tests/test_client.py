@@ -538,10 +538,13 @@ class TestVehicleStatusC10Fallback:
         client = self._client()
         with (
             patch.object(client, "_post", return_value=_STATUS_404) as post,
-            pytest.raises(LeapmotorApiError, match="No message available"),
+            pytest.raises(LeapmotorApiError) as exc_info,
         ):
             client.get_vehicle_raw_status(self._vehicle("X99"))
         assert self._paths(post) == ["x99", "c10"]
+        message = str(exc_info.value)
+        assert "No message available" in message
+        assert "'x99' (HTTP 404) and 'c10'" in message
         client.close()
 
 

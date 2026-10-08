@@ -381,7 +381,12 @@ class LeapmotorApiClient:
                 "so the model can be mapped.",
                 vehicle.car_type,
             )
-        return self._parse_api_body(response["status_code"], response["body"], "vehicle status c10 fallback")
+        try:
+            return self._parse_api_body(response["status_code"], response["body"], "vehicle status c10 fallback")
+        except LeapmotorApiError as exc:
+            raise LeapmotorApiError(
+                f"{exc} (tried status segments '{car_type_path}' (HTTP 404) and '{CarType.C10}')"
+            ) from exc
 
     def _post_vehicle_status(self, vehicle: Vehicle, car_type_path: str) -> dict[str, Any]:
         headers = build_signed_headers(
