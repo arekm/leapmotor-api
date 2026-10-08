@@ -470,6 +470,16 @@ class TestVehicleStatusC10Fallback:
         assert self._paths(post) == ["x99", "c10"]
         client.close()
 
+    def test_records_both_attempts(self) -> None:
+        client = self._client()
+        with patch.object(client, "_post", side_effect=[_STATUS_404, _STATUS_OK]):
+            client.get_vehicle_raw_status(self._vehicle("X99"))
+        assert client.last_api_results["vehicle status"]["http_status"] == 404
+        assert client.last_api_results["vehicle status"]["message"] == "No message available"
+        assert client.last_api_results["vehicle status c10 fallback"]["http_status"] == 200
+        assert client.last_api_results["vehicle status c10 fallback"]["code"] == 0
+        client.close()
+
     def test_remembers_c10_after_successful_fallback(self) -> None:
         client = self._client()
         with patch.object(client, "_post", side_effect=[_STATUS_404, _STATUS_OK, _STATUS_OK]) as post:

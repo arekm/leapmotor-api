@@ -363,20 +363,25 @@ class LeapmotorApiClient:
         car_type_path = _vehicle_status_car_type_path(vehicle.car_type)
         car_type_path = self._status_path_overrides.get(car_type_path, car_type_path)
         response = self._post_vehicle_status(vehicle, car_type_path)
+        if response["status_code"] != 404 or car_type_path == CarType.C10:
+            return self._parse_api_body(response["status_code"], response["body"], "vehicle status")
+
         # Several models share the C10 status endpoint and answer 404 on their own
         # segment (see ``mappings.CAR_TYPE_PATH_MAP``). Retry once on C10 so a model
         # that is not mapped yet still reports data, and remember it if it works.
-        if response["status_code"] == 404 and car_type_path != CarType.C10:
-            response = self._post_vehicle_status(vehicle, CarType.C10)
-            if response["status_code"] == 200:
-                self._status_path_overrides[car_type_path] = CarType.C10
-                _LOGGER.warning(
-                    "Status endpoint for carType %s answered 404; using the shared C10 endpoint. "
-                    "Please report it at https://github.com/markoceri/leapmotor-api/issues "
-                    "so the model can be mapped.",
-                    vehicle.car_type,
-                )
-        return self._parse_api_body(response["status_code"], response["body"], "vehicle status")
+        # Both attempts are kept in ``last_api_results`` for diagnostics.
+        with contextlib.suppress(LeapmotorApiError):
+            self._parse_api_body(response["status_code"], response["body"], "vehicle status")
+        response = self._post_vehicle_status(vehicle, CarType.C10)
+        if response["status_code"] == 200:
+            self._status_path_overrides[car_type_path] = CarType.C10
+            _LOGGER.warning(
+                "Status endpoint for carType %s answered 404; using the shared C10 endpoint. "
+                "Please report it at https://github.com/markoceri/leapmotor-api/issues "
+                "so the model can be mapped.",
+                vehicle.car_type,
+            )
+        return self._parse_api_body(response["status_code"], response["body"], "vehicle status c10 fallback")
 
     def _post_vehicle_status(self, vehicle: Vehicle, car_type_path: str) -> dict[str, Any]:
         headers = build_signed_headers(
