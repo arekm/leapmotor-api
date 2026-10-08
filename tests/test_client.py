@@ -423,6 +423,85 @@ class TestMessageEndpoints:
 
 
 # ---------------------------------------------------------------------------
+# Client — vehicle status C10 fallback
+# ---------------------------------------------------------------------------
+
+_STATUS_OK = {"status_code": 200, "body": json.dumps({"code": 0, "data": {"signal": {}}})}
+_STATUS_404 = {
+    "status_code": 404,
+    "body": json.dumps({"status": 404, "error": "Not Found", "message": "No message available"}),
+}
+
+
+class TestVehicleStatusC10Fallback:
+    def _client(self) -> LeapmotorApiClient:
+        client = _make_client()
+        client.token = "tok"
+        client.user_id = "uid"
+        client.sign_ikm = "ikm"
+        client.sign_salt = "salt"
+        client.sign_info = "info"
+        client.account_cert_file = "/tmp/cert.pem"
+        client.account_key_file = "/tmp/key.pem"
+        return client
+
+    def _vehicle(self, car_type: str) -> Vehicle:
+        return Vehicle(
+            vin="VIN1",
+            car_type=car_type,
+            email=None,
+            plate_number=None,
+            car_id="1",
+            user_nickname="N",
+            vehicle_nickname="N",
+            is_shared=False,
+        )
+
+    @staticmethod
+    def _paths(post: Any) -> list[str]:
+        return [call.kwargs["path"].rsplit("/", 1)[-1] for call in post.call_args_list]
+
+    def test_retries_on_c10_after_404(self) -> None:
+        client = self._client()
+        with patch.object(client, "_post", side_effect=[_STATUS_404, _STATUS_OK]) as post:
+            result = client.get_vehicle_raw_status(self._vehicle("X99"))
+        assert result["code"] == 0
+        assert self._paths(post) == ["x99", "c10"]
+        client.close()
+
+    def test_no_retry_when_already_c10(self) -> None:
+        client = self._client()
+        with (
+            patch.object(client, "_post", return_value=_STATUS_404) as post,
+            pytest.raises(LeapmotorApiError, match="No message available"),
+        ):
+            client.get_vehicle_raw_status(self._vehicle("B05"))
+        assert self._paths(post) == ["c10"]
+        client.close()
+
+    def test_no_retry_on_other_errors(self) -> None:
+        client = self._client()
+        error = {"status_code": 200, "body": json.dumps({"code": 500, "message": "Server busy"})}
+        with (
+            patch.object(client, "_post", return_value=error) as post,
+            pytest.raises(LeapmotorApiError, match="Server busy"),
+        ):
+            client.get_vehicle_raw_status(self._vehicle("X99"))
+        assert self._paths(post) == ["x99"]
+        client.close()
+
+    def test_raises_when_c10_also_fails(self) -> None:
+        client = self._client()
+        with (
+            patch.object(client, "_post", return_value=_STATUS_404) as post,
+            pytest.raises(LeapmotorApiError, match="No message available"),
+        ):
+            client.get_vehicle_raw_status(self._vehicle("X99"))
+        assert self._paths(post) == ["x99", "c10"]
+        client.close()
+
+
+# ---------------------------------------------------------------------------
 # set_charge_limit — schedule preservation (issue #18)
 # ---------------------------------------------------------------------------
 

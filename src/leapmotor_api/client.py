@@ -358,17 +358,25 @@ class LeapmotorApiClient:
 
     def _get_vehicle_raw_status(self, vehicle: Vehicle) -> dict[str, Any]:
         car_type_path = _vehicle_status_car_type_path(vehicle.car_type)
+        response = self._post_vehicle_status(vehicle, car_type_path)
+        # Several models share the C10 status endpoint and answer 404 on their own
+        # segment (see ``mappings.CAR_TYPE_PATH_MAP``). Retry once on C10 so a model
+        # that is not mapped yet still reports data.
+        if response["status_code"] == 404 and car_type_path != CarType.C10:
+            response = self._post_vehicle_status(vehicle, CarType.C10)
+        return self._parse_api_body(response["status_code"], response["body"], "vehicle status")
+
+    def _post_vehicle_status(self, vehicle: Vehicle, car_type_path: str) -> dict[str, Any]:
         headers = build_signed_headers(
             sign_key=self.sign_key, device_id=self.device_id, vin=vehicle.vin, language=self.language
         ).to_dict()
         headers.update(self._auth_headers())
-        response = self._post(
+        return self._post(
             path=f"/carownerservice/oversea/vehicle/v1/status/get/{car_type_path}",
             headers=headers,
             data=f"vin={quote(vehicle.vin, safe='')}",
             cert=self.account_cert,
         )
-        return self._parse_api_body(response["status_code"], response["body"], "vehicle status")
 
     def get_mileage_energy_detail(self, vehicle: Vehicle) -> dict[str, Any]:
         """Fetch read-only mileage and energy history summary."""
